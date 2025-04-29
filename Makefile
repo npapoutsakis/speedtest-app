@@ -1,11 +1,10 @@
 all: server client
 
 server: server.c
-	gcc -o server server.c -lpthread
+	gcc -o server server.c
 
 client: client.c
-	gcc -o client client.c -lpthread
-	@echo "Client and server compiled successfully."
+	gcc -o client client.c
 
 clean:
 	rm -f client server
