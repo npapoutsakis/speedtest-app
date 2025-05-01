@@ -11,9 +11,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-// see available ports: cat /etc/services
+// Ref: Beej’s Guide to Network Programming (pg 12) --> see available ports: cat /etc/services
 #define PORT 5000
-#define BUFFER_SIZE 1024
 
 
 int main(int argc, char *argv[]) {
@@ -51,57 +50,58 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Server listening on port %d\n", PORT);
+    printf("[SERVER] Server listening on port %d\n", PORT);
 
     
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    
-    // accept a connection from a client
-    int client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_addr_len);
-    if (client_socket == -1) {
-        printf("Socket accepting failed...\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    // print the client's ip address and port
-    printf("Client connected: %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-    
-    char buffer[BUFFER_SIZE];
-    int n;
-
     // main server loop
     while (1) {
-        
-        // clear buffer
-        bzero(buffer, BUFFER_SIZE);
 
-        // receive data from the client, returns the number of bytes received
-        ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-        if (bytes_received <= 0) {
-            printf("Client disconnected...\n");
-            break;
+        struct sockaddr_in client_addr;
+        socklen_t client_addr_len = sizeof(client_addr);
+
+        // accept a connection from a client
+        int client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_addr_len);
+        if (client_socket == -1) {
+            printf("Socket accepting failed...\n");
+            exit(EXIT_FAILURE);
+        }
+        printf("[SERVER] Client connected\n");
+
+
+        while (1) {
+            // receive data from the client
+            char buffer[1024];
+            memset(buffer, 0, sizeof(buffer));
+            ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
+            if (bytes_received == -1) {
+                printf("Socket receiving failed...\n");
+                exit(EXIT_FAILURE);
+            }
+
+            // print the received data
+            printf("[SERVER] Client sent: %s\n", buffer);
+            
+            // type a response
+            memset(buffer, 0, sizeof(buffer));
+            printf("[SERVER] Type a response: ");
+
+            int n = 0;
+            while ((buffer[n++] = getchar()) != '\n');
+
+            ssize_t bytes_sent = send(client_socket, buffer, strlen(buffer), 0);
+            if (bytes_sent == -1) {
+                printf("Socket sending failed...\n");
+                exit(EXIT_FAILURE);
+            }
+
         }
 
-        // print the received data
-        printf("From client: %s\t To client : ", buffer);
-        bzero(buffer, BUFFER_SIZE);
-        
-        n = 0; 
-        while ((buffer[n++] = getchar()) != '\n'); 
-    
-        // send data to the client
-        send(client_socket, buffer, strlen(buffer), 0);
-
-        // close the client socket using `exit`
-        if (strncmp("exit", buffer, 4) == 0) { 
-            printf("Server Exit...\n"); 
-            break; 
-        } 
     }
+
+
 
     // close the sockets
     close(server_socket);
-    printf("Server closed.\n");
+    printf("[SERVER] Server closed.\n");
     return 0;
 }

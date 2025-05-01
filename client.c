@@ -13,7 +13,6 @@
 
 #define DEFAULT_IP "147.27.4.22"
 #define PORT 5000
-#define BUFFER_SIZE 1024
 
 int main(int argc, char *argv[]) {
 
@@ -37,30 +36,16 @@ int main(int argc, char *argv[]) {
         printf("Connection to server failed...\n");
         exit(EXIT_FAILURE);
     }
-    
-
-    char buffer[BUFFER_SIZE];
-    int n;
+    printf("[CLIENT] Connected to server at %s:%d\n", DEFAULT_IP, PORT);    
     
     // main client loop
-    printf("Connected to server. Type 'exit' to quit.\n");
     while (1) {
-        bzero(buffer, BUFFER_SIZE);
-        printf("Type a message: ");
-        n = 0;
-        while ((buffer[n++] = getchar()) != '\n');
         
-        send(client_socket, buffer, sizeof(buffer), 0);
-        bzero(buffer, BUFFER_SIZE);
         
-        recv(client_socket, buffer, sizeof(buffer), 0);
-        printf("From server: %s", buffer);
 
-        if (strncmp(buffer, "exit", 4) == 0) {
-            printf("Exiting...\n");
-            break;
-        }
+
     }
+
 
     close(client_socket);
     printf("Connection closed.\n");
