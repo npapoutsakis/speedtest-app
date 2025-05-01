@@ -65,8 +65,16 @@ int main(int argc, char *argv[]) {
             printf("Socket accepting failed...\n");
             exit(EXIT_FAILURE);
         }
-        printf("[SERVER] Client connected\n");
+        printf("[SERVER] Client %s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
+        
+        // while (1) {  }
+        /** 
+         *  0. The test will be 30 seconds long
+         *  1. Server alwayes listens for incoming connections (has wireless connection to ap)
+         *  2. Server will print the data sent rate (Mbps) in 2 seconds intervals 
+         *  3. Server will print the aggregated throughput (Mbps) over the 30 seconds
+         */
 
         while (1) {
             // receive data from the client
@@ -80,7 +88,7 @@ int main(int argc, char *argv[]) {
 
             // check if the clint has disconnected
             if (strncmp(buffer, "exit", 4) == 0) {
-                printf("[SERVER] Client disconnected\n");
+                printf("[SERVER] Client %s:%d disconnected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
                 break;
             }
             

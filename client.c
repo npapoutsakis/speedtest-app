@@ -36,8 +36,6 @@ int main(int argc, char *argv[]) {
     client_addr.sin_addr.s_addr = inet_addr(argv[1]);
     client_addr.sin_port = htons(PORT);
     
-    // need to check the queue size
-
     // attempt to connect to the server    
     if (connect(client_socket, (struct sockaddr *)&client_addr, sizeof(client_addr)) == -1) {
         printf("Connection to server failed...\n");
@@ -46,6 +44,12 @@ int main(int argc, char *argv[]) {
     printf("[CLIENT] Connected to server at %s:%d\n", DEFAULT_IP, PORT);    
     printf("[CLIENT] Type 'exit' to quit.\n");
     
+
+    // while (1) { }
+    /**
+     *  0. Client connects to server (has linked connection to ap)
+     */
+
     // main client loop
     while (1) {
         char buffer[1024];
