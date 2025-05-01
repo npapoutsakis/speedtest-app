@@ -78,12 +78,18 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
 
-            // print the received data
-            printf("[SERVER] Client sent: %s\n", buffer);
+            // check if the clint has disconnected
+            if (strncmp(buffer, "exit", 4) == 0) {
+                printf("[SERVER] Client disconnected\n");
+                break;
+            }
             
-            // type a response
+            // print the received data
+            printf("[CLIENT]: %s\n", buffer);
+
+            // reset & type a response
             memset(buffer, 0, sizeof(buffer));
-            printf("[SERVER] Type a response: ");
+            printf("[SERVER]: ");
 
             int n = 0;
             while ((buffer[n++] = getchar()) != '\n');
@@ -93,12 +99,10 @@ int main(int argc, char *argv[]) {
                 printf("Socket sending failed...\n");
                 exit(EXIT_FAILURE);
             }
-
         }
 
+        printf("[SERVER] Awaiting client connection...\n");
     }
-
-
 
     // close the sockets
     close(server_socket);

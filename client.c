@@ -48,19 +48,19 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     printf("[CLIENT] Connected to server at %s:%d\n", DEFAULT_IP, PORT);    
+    printf("[CLIENT] Type 'exit' to quit.\n");
     
     // main client loop
     while (1) {
-    
         char buffer[1024];
-        printf("[CLIENT] Enter message to send to server (or 'exit' to quit): ");
+        printf("[CLIENT]: ");
         memset(buffer, 0, sizeof(buffer));
         
         int n = 0;
         while ((buffer[n++] = getchar()) != '\n');
 
         // check for exit command
-        if (strcmp(buffer, "exit") == 0) {
+        if (strncmp(buffer, "exit", 4) == 0) {
             break;
         }
 
@@ -70,8 +70,7 @@ int main(int argc, char *argv[]) {
 
         // receive response from server
         recv(client_socket, buffer, sizeof(buffer), 0);
-        printf("Received from server: %s\n", buffer);
-
+        printf("[SERVER]: %s\n", buffer);
     }
 
 
