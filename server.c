@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     // listen for incoming connections, 1 is the maximum number of queued connections
-    if (listen(server_socket, 1) == -1) {
+    if (listen(server_socket, 0) == -1) {
         printf("Socket listening failed...\n");
         exit(EXIT_FAILURE);
     }

@@ -21,27 +21,23 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // parse the server IP address
-    char *server_ip = argv[1];
-    if (server_ip == NULL || strlen(server_ip) == 0) {
-        printf("Invalid server IP address. Using default: %s\n", DEFAULT_IP);
-        server_ip = DEFAULT_IP;
-    }    
-
+    // create client socket
     int client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket == -1) {
         printf("Socket creation failed...\n");
         exit(EXIT_FAILURE);
     }
-
+    
     // set up the client address structure
     struct sockaddr_in client_addr;
     
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;
-    client_addr.sin_addr.s_addr = inet_addr(server_ip);
+    client_addr.sin_addr.s_addr = inet_addr(argv[1]);
     client_addr.sin_port = htons(PORT);
     
+    // need to check the queue size
+
     // attempt to connect to the server    
     if (connect(client_socket, (struct sockaddr *)&client_addr, sizeof(client_addr)) == -1) {
         printf("Connection to server failed...\n");
@@ -59,13 +55,14 @@ int main(int argc, char *argv[]) {
         int n = 0;
         while ((buffer[n++] = getchar()) != '\n');
 
+        send(client_socket, buffer, strlen(buffer), 0);
+
         // check for exit command
         if (strncmp(buffer, "exit", 4) == 0) {
             break;
         }
-
+        
         // send message to server
-        send(client_socket, buffer, strlen(buffer), 0);
         memset(buffer, 0, sizeof(buffer));
 
         // receive response from server
