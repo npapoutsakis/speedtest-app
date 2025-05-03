@@ -1,5 +1,5 @@
 /**
- *  Client
+ *  Client - SpeedTest Implementation
  */
 
 #include <stdio.h>
@@ -10,16 +10,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <time.h>
 
 #define DEFAULT_IP "147.27.4.22"
 #define PORT 5000
+#define BUFFER_SIZE 128000 // 128 KB
+#define TEST_DURATION 30
 
 int main(int argc, char *argv[]) {
-
-    if (argc != 2) {
-        printf("Usage: %s <server_ip>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
 
     // create client socket
     int client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -29,53 +27,67 @@ int main(int argc, char *argv[]) {
     }
     
     // set up the client address structure
-    struct sockaddr_in client_addr;
+    struct sockaddr_in client_address;
     
-    memset(&client_addr, 0, sizeof(client_addr));
-    client_addr.sin_family = AF_INET;
-    client_addr.sin_addr.s_addr = inet_addr(argv[1]);
-    client_addr.sin_port = htons(PORT);
+    memset(&client_address, 0, sizeof(client_address));
+    client_address.sin_family = AF_INET;
+    client_address.sin_addr.s_addr = inet_addr(argv[1]== NULL ? DEFAULT_IP : argv[1]);
+    client_address.sin_port = htons(PORT);
     
     // attempt to connect to the server    
-    if (connect(client_socket, (struct sockaddr *)&client_addr, sizeof(client_addr)) == -1) {
+    if (connect(client_socket, (struct sockaddr *)&client_address, sizeof(client_address)) == -1) {
         printf("Connection to server failed...\n");
         exit(EXIT_FAILURE);
     }
-    printf("[CLIENT] Connected to server at %s:%d\n", DEFAULT_IP, PORT);    
-    printf("[CLIENT] Type 'exit' to quit.\n");
-    
+    printf("[CLIENT] Connected to server at %s:%d\n", argv[1] == NULL ? DEFAULT_IP : argv[1] , PORT);    
 
-    // while (1) { }
+
+    /*-------------------- SpeedTest --------------------*/
+    printf("[CLIENT] Starting %d second speedtest...\n", TEST_DURATION);
+    
+    // speedtest variables
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
+
+    // data rate variables
+    ssize_t bytes_sent;
+    ssize_t total_bytes_sent = 0;
+    
+    // time variables
+    time_t start_time = time(NULL);
+    time_t current_time;
+    double time_passed;
+
     /**
-     *  0. Client connects to server (has linked connection to ap)
+     *  Should the client print the 2-second interval throughput? of the 20-second ? typo? ...sending email to pefkianakis
      */
 
     // main client loop
     while (1) {
-        char buffer[1024];
-        printf("[CLIENT]: ");
-        memset(buffer, 0, sizeof(buffer));
+        bytes_sent = send(client_socket, buffer, BUFFER_SIZE, 0);
         
-        int n = 0;
-        while ((buffer[n++] = getchar()) != '\n');
+        // get the current time and calculate the time passed from the start
+        current_time = time(NULL);
+        time_passed = difftime(current_time, start_time);
 
-        send(client_socket, buffer, strlen(buffer), 0);
+        // sum up the total bytes sent
+        total_bytes_sent += bytes_sent;
 
-        // check for exit command
-        if (strncmp(buffer, "exit", 4) == 0) {
+        if (time_passed >= TEST_DURATION) {
             break;
         }
-        
-        // send message to server
-        memset(buffer, 0, sizeof(buffer));
-
-        // receive response from server
-        recv(client_socket, buffer, sizeof(buffer), 0);
-        printf("[SERVER]: %s\n", buffer);
     }
 
+    // update the time
+    current_time = time(NULL);
+    time_passed = difftime(current_time, start_time);
 
+    // the client should not print the overall throughput -> just for verification for now
+    double aggregated_throughput = (total_bytes_sent * 8.0)/(time_passed * 1000000.0);
+
+    printf("[CLIENT] Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
+    printf("[CLIENT] Connection closed.\n");
+    
     close(client_socket);
-    printf("Connection closed.\n");
     return 0;
 }
