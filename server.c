@@ -132,7 +132,6 @@ int main(int argc, char *argv[]) {
         
         printf("[SERVER] Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
         printf("[SERVER] Connection closed.\n");
-        close(client_socket);
     }
 
     close(server_socket);
