@@ -16,6 +16,7 @@
 #define PORT 5000
 #define BUFFER_SIZE 128000 // 128 KB
 #define TEST_DURATION 30
+#define TIME_INTERVAL 2
 
 int main(int argc, char *argv[]) {
 
@@ -52,15 +53,14 @@ int main(int argc, char *argv[]) {
     // data rate variables
     ssize_t bytes_sent;
     ssize_t total_bytes_sent = 0;
-    
+    ssize_t interval_bytes_sent = 0;
+
     // time variables
     time_t start_time = time(NULL);
+    time_t previous_interval = time(NULL);
     time_t current_time;
-    double time_passed;
 
-    /**
-     *  Should the client print the 2-second interval throughput? of the 20-second ? typo? ...sending email to pefkianakis
-     */
+    double time_passed;
 
     // main client loop
     while (1) {
@@ -72,6 +72,18 @@ int main(int argc, char *argv[]) {
 
         // sum up the total bytes sent
         total_bytes_sent += bytes_sent;
+        interval_bytes_sent += bytes_sent;
+
+        double interval_time_passed = difftime(current_time, previous_interval);
+        if (interval_time_passed >= TIME_INTERVAL) {
+            // calculate the throughput for the last 2 seconds
+            double data_rate = (interval_bytes_sent * 8.0)/(interval_time_passed * 1000000.0);
+            printf("[CLIENT] Time Interval [%.1fs - %.1fs]: %.2f Mbps\n", difftime(previous_interval, start_time), time_passed, data_rate);
+            
+            // reset the bytes sent on the 2-second window
+            interval_bytes_sent = 0;
+            previous_interval = current_time;
+        }
 
         if (time_passed >= TEST_DURATION) {
             break;
@@ -82,12 +94,7 @@ int main(int argc, char *argv[]) {
     current_time = time(NULL);
     time_passed = difftime(current_time, start_time);
 
-    // the client should not print the overall throughput -> just for verification for now
-    double aggregated_throughput = (total_bytes_sent * 8.0)/(time_passed * 1000000.0);
-
-    printf("[CLIENT] Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
-    printf("[CLIENT] Connection closed.\n");
-    
+    printf("\n[CLIENT] SpeedTest finished. Terminating connection...\n");
     close(client_socket);
     return 0;
 }

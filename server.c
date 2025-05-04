@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
         
         // data rate variables
         ssize_t bytes_received;
-        double total_bytes_received = 0;
-        double interval_bytes_received = 0;
+        ssize_t total_bytes_received = 0;
+        ssize_t interval_bytes_received = 0;
         
         // time variables
         time_t start_time = time(NULL);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         time_passed = difftime(current_time, start_time);
         aggregated_throughput = (total_bytes_received * 8.0)/(time_passed * 1000000.0);
         
-        printf("[SERVER] Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
+        printf("[SERVER] SpeedTest finished. Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
         printf("[SERVER] Connection closed.\n");
     }
 
