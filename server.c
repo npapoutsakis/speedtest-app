@@ -100,25 +100,18 @@ int main(int argc, char *argv[]) {
         printf("[SERVER] Client %s:%d connected\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 
         
-        // --- BEGIN ADDITION FOR LOGGING ---
-        FILE *throughput_log_file = NULL;
         char log_filename[256];
-        // Create a unique filename for this client session's log, e.g., "throughput_log_127.0.0.1_12345.csv"
-        snprintf(log_filename, sizeof(log_filename), "throughput_log_%s_%d.csv",
-                inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+        snprintf(log_filename, sizeof(log_filename), "throughput_%s_%d.csv", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 
-        throughput_log_file = fopen(log_filename, "w"); // Open in write mode, creates new or truncates existing
+        FILE *throughput_log_file = fopen(log_filename, "w");
         if (throughput_log_file == NULL) {
             perror("[SERVER] Error opening throughput log file. Logging for this session will be disabled.");
-            // Continue without logging for this client if file opening fails
-        } else {
-            // Write CSV Header
+        } 
+        else {
             fprintf(throughput_log_file, "Type,IntervalStart_s,IntervalEnd_s,Throughput_Mbps\n");
-            fflush(throughput_log_file); // Ensure header is written
+            fflush(throughput_log_file);
             printf("[SERVER] Logging throughput to %s\n", log_filename);
         }
-        // --- END ADDITION FOR LOGGING ---
-
 
 
         /*-------------------- SpeedTest --------------------*/
@@ -161,11 +154,9 @@ int main(int argc, char *argv[]) {
                 double data_rate = (interval_bytes_received * 8.0)/(current_time_interval * 1000000.0);
                 printf("[SERVER] Time Interval [%.1fs - %.1fs]: %.2f Mbps\n", difftime(previous_interval, start_time), time_passed, data_rate);
                 
-                // --- BEGIN ADDITION FOR LOGGING ---
                 if (throughput_log_file != NULL) {
                     save_interval_throughput(throughput_log_file, difftime(previous_interval, start_time), time_passed, data_rate);
                 }
-                // --- END ADDITION FOR LOGGING ---
                 
                 // reset the bytes on the 2-second window
                 interval_bytes_received = 0;
@@ -191,11 +182,9 @@ int main(int argc, char *argv[]) {
         
         printf("[SERVER] SpeedTest finished. Aggregated throughput: %.2f Mbps\n", aggregated_throughput);
 
-        // --- BEGIN ADDITION FOR LOGGING ---
         if (throughput_log_file != NULL) {
             save_aggregated_throughput(throughput_log_file, time_passed, aggregated_throughput);
         }
-        // --- END ADDITION FOR LOGGING ---
         
         printf("[SERVER] Connection closed.\n");
     }
