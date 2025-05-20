@@ -1,5 +1,11 @@
 /**
- *  Server - SpeedTest Implementation
+ *      SpeedTest with Unix Sockets 
+ *   Server - SpeedTest Implementation
+ * 
+ *  @authors Nikolaos Papoutsakis 2019030206
+ *           Christakis Argyris   2019030078 
+ *           Sokratis Siganos     2019030097
+ *           Syrianos Michael     2019030058
  */
 
 #include <stdio.h>
@@ -123,6 +129,12 @@ int main(int argc, char *argv[]) {
             if (time_passed >= TEST_DURATION) {
                 break;
             }
+
+            if (bytes_received == 0) {
+                printf("[SERVER] Client disconnected...\n");
+                break;
+            }
+
         }
 
         // update the current time
