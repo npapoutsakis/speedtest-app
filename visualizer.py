@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import glob
+import re
 
 SCENARIOS = [
     '2.4ghz-1m',
@@ -157,6 +158,9 @@ def throughput_estimation():
         df_speedtest_intervals = df_speedtest[df_speedtest['Type'] == 'INTERVAL']
         time = df_sniff['time_bin']
 
+        # print(f"Sniffer Mean Throughput for {scenario}: {df_sniff['mean_throughput'].mean():.2f} Mbps")
+        # print(f"SpeedTest Mean Throughput for {scenario}: {df_speedtest['Throughput_Mbps'].mean():.2f} Mbps")
+
         plt.figure(figsize=(12, 5))
         plt.plot(time, df_sniff['mean_throughput'], marker='o', markersize=4, label='Wi-Fi Doctor (Mbps)')
         plt.plot(df_speedtest_intervals['IntervalStart_s'], df_speedtest_intervals['Throughput_Mbps'], marker='o', markersize=4, label='SpeedTest App')
@@ -170,6 +174,14 @@ def throughput_estimation():
         plt.tight_layout()
         plt.savefig(f'./plots/throughput_estimation/thr_{scenario}.png', dpi=300)
         plt.close()
+
+        # save the statistics
+        f = open(f'./statistics/throughput_estimation/{scenario}.txt', 'w')
+        f.write(f'=== Scenario: {scenario} ===\n')
+        f.write(f'Sniffer Mean Throughput: {df_sniff["mean_throughput"].mean():.2f} Mbps\n')
+        f.write(f'SpeedTest Mean Throughput: {df_speedtest["Throughput_Mbps"].mean():.2f} Mbps\n')
+        f.close()
+
 
 
     # Plot the wi-fi doctor metrics for all scenarios
@@ -210,6 +222,7 @@ def delete_old_plots():
         './plots/throughput_estimation/',
         './statistics/throughput_evaluation/',
         './statistics/throughput_verification/',
+        './statistics/throughput_estimation/',
     ]
 
     for directory in directories:
@@ -218,12 +231,40 @@ def delete_old_plots():
             os.remove(file)
 
 
+"""
+    This function will calculate the active vs passive throughput ratio
+"""
+def active_vs_passive():
+    folder = './statistics/throughput_estimation/'
+    files = os.listdir(folder)
+    
+    for file in files:
+            with open(os.path.join(folder, file), 'r') as f:
+                content = f.read()
+                
+                sniffer_mean = re.search(r'Sniffer Mean Throughput: ([\d.]+)', content)
+                speedtest_mean = re.search(r'SpeedTest Mean Throughput: ([\d.]+)', content)
+
+                sniffer_mean = float(sniffer_mean.group(1))
+                speedtest_mean = float(speedtest_mean.group(1))
+
+                ratio = speedtest_mean / sniffer_mean
+                scenario = file.split('.txt')[0]
+                f = open(f'./statistics/throughput_estimation/{scenario}.txt', 'w')
+                f.write(f'=== Scenario: {scenario} ===\n')
+                f.write(f'Sniffer Mean Throughput: {sniffer_mean:.2f} Mbps\n')
+                f.write(f'SpeedTest Mean Throughput: {speedtest_mean:.2f} Mbps\n')
+                f.write(f'Active vs Passive Ratio: {ratio:.2f}\n')
+                f.close()
+    return
+
 
 def main():
-    throughput_evaluation()
-    throughput_verification()
-    throughput_estimation()
-    # delete_old_plots()
+    # throughput_evaluation()
+    # throughput_verification()
+    # throughput_estimation()
+    # active_vs_passive()
+    delete_old_plots()
     return
 
 

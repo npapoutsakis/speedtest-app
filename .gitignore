@@ -3,6 +3,7 @@ server
 client
 statistics/throughput_evaluation/*
 statistics/throughput_verification/*
+statistics/throughput_estimation/*
 plots/throughput_evaluation/*
 plots/throughput_verification/*
 plots/throughput_estimation/*
