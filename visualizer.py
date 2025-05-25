@@ -1,4 +1,5 @@
 #  Visualizer
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -77,6 +78,7 @@ def throughput_evaluation():
         fig.axhline(y=aggregated_throughput['Throughput_Mbps'], color=color[scenario], linestyle='--', linewidth=0.8)
         fig.set_ylabel('Throughput (Mbps)')
         fig.set_xlabel('Time (s)')
+        fig.set_xticks(np.arange(0, 32, 2))
         fig.legend(loc='upper right')
         fig.grid(True)
         fig.set_ylim(0, 175)
@@ -161,6 +163,7 @@ def throughput_estimation():
         
         plt.title(f"Throughput Comparison - {scenario}")
         plt.xlabel("Time (s)")
+        plt.xticks(np.arange(0, 32, 2))
         plt.ylabel("Throughput (Mbps)")
         plt.legend()
         plt.grid(True)
@@ -187,6 +190,7 @@ def throughput_estimation():
         plt.title(title)
         plt.ylabel(title)
         plt.xlabel("Time (s)")
+        plt.xticks(np.arange(0, 32, 2))
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
@@ -216,9 +220,9 @@ def delete_old_plots():
 
 
 def main():
-    # throughput_evaluation()
-    # throughput_verification()
-    # throughput_estimation()
+    throughput_evaluation()
+    throughput_verification()
+    throughput_estimation()
     # delete_old_plots()
     return
 

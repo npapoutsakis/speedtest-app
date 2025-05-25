@@ -5,3 +5,4 @@ statistics/throughput_evaluation/*
 statistics/throughput_verification/*
 plots/throughput_evaluation/*
 plots/throughput_verification/*
+plots/throughput_estimation/*
