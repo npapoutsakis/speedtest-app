@@ -7,7 +7,6 @@ This project implements a custom SpeedTest application in C, using TCP Unix sock
 
 ### Table of Contents
 - [Project Overview](#project-overview)
-- [Directory Structure](#directory-structure)
 - [Compilation](#compilation)
 - [Running the Server](#running-the-server)
 - [Running the Client](#running-the-client)
